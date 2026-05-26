@@ -23,11 +23,11 @@ export default async function HomePage() {
           color: 'var(--terracotta)',
           marginBottom: '1rem',
         }}>
-          Dein digitales Kochbuch
+          Your digital cookbook
         </p>
         <h1 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', color: 'var(--ink)', marginBottom: '1.2rem' }}>
-          Entdecke Rezepte,<br />
-          <em style={{ fontStyle: 'italic', color: 'var(--terracotta)' }}>die begeistern.</em>
+          Discover recipes,<br />
+          <em style={{ fontStyle: 'italic', color: 'var(--terracotta)' }}>that inspire.</em>
         </h1>
         <p style={{
           fontSize: '1.15rem',
@@ -36,20 +36,20 @@ export default async function HomePage() {
           margin: '0 auto 2rem',
           lineHeight: 1.7,
         }}>
-          Von schnellen Wochentags-Gerichten bis zu besonderen Momenten —
-          finde, koche und speichere deine Favoriten.
+          From quick weeknight dinners to special occasions —
+          find, cook, and save your favourite recipes.
         </p>
-        <a href="/recipes" className="btn">Alle Rezepte entdecken</a>
+        <a href="/recipes" className="btn">Explore all recipes</a>
       </section>
 
       {/* Featured Grid */}
       <section style={{ padding: '3.5rem 1.5rem 5rem', maxWidth: 'var(--maxw)', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '0.4rem' }}>Featured Rezepte</h2>
+        <h2 style={{ fontSize: '2rem', marginBottom: '0.4rem' }}>Featured Recipes</h2>
         <p style={{ color: 'var(--ink-soft)', marginBottom: '2rem' }}>
-          Handverlesen — perfekt um loszulegen.
+          Handpicked — perfect to get started.
         </p>
         {recipes.length === 0 ? (
-          <p style={{ color: 'var(--ink-soft)' }}>Keine Rezepte gefunden.</p>
+          <p style={{ color: 'var(--ink-soft)' }}>No recipes found.</p>
         ) : (
           <div className="card-grid">
             {recipes.map(r => (

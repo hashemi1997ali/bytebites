@@ -9,8 +9,8 @@ export default function Navbar() {
         </Link>
         <ul className="navbar__links">
           <li><Link href="/">Home</Link></li>
-          <li><Link href="/recipes">Rezepte</Link></li>
-          <li><Link href="/cookbook">Kochbuch</Link></li>
+          <li><Link href="/recipes">Recipes</Link></li>
+          <li><Link href="/cookbook">Cookbook</Link></li>
         </ul>
       </div>
     </nav>

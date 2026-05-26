@@ -33,8 +33,8 @@ export default function CookbookButton({ recipeId, initialInCookbook }) {
       {loading
         ? '…'
         : inCookbook
-        ? '✅ Im Kochbuch'
-        : '📖 Zum Kochbuch hinzufügen'}
+        ? '✅ Saved to Cookbook'
+        : '📖 Add to Cookbook'}
     </button>
   )
 }
