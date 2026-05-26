@@ -1,12 +1,18 @@
+import './globals.css'
+import Navbar from './components/Navbar'
+
 export const metadata = {
-  title: 'ByteBites',
-  description: 'Recipe app',
+  title: 'ByteBites — Recipe Diary',
+  description: 'Discover, cook, and save your favourite recipes.',
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        {children}
+      </body>
     </html>
   )
 }
