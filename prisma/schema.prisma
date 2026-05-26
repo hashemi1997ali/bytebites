@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Recipe {
+  id             Int      @id @default(autoincrement())
+  externalId     Int?     @unique
+  isPersonal     Boolean  @default(false)
+  title          String
+  image          String
+  summary        String?
+  instructions   String?
+  ingredients    String?
+  category       String?
+  cuisine        String?
+  readyInMinutes Int?
+  servings       Int?
+  sourceUrl      String?
+  featured       Boolean  @default(false)
+  vegan          Boolean  @default(false)
+  vegetarian     Boolean  @default(false)
+  glutenFree     Boolean  @default(false)
+  dairyFree      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  cookbookEntries CookbookEntry[]
+}
+
+model CookbookEntry {
+  id        Int      @id @default(autoincrement())
+  recipeId  Int      @unique
+  notes     String?
+  favorite  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
