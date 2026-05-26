@@ -66,3 +66,41 @@ export async function getSimilar(category, excludeId, limit = 4) {
     orderBy: { createdAt: 'desc' },
   })
 }
+// ============================================
+// Kochbuch (CookbookEntry) — neue Funktionen
+// ============================================
+
+export async function getCookbook() {
+  return prisma.cookbookEntry.findMany({
+    include: { recipe: true },
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
+export async function addToCookbook(recipeId) {
+  return prisma.cookbookEntry.upsert({
+    where:  { recipeId },
+    update: {},
+    create: { recipeId },
+  })
+}
+
+export async function removeFromCookbook(recipeId) {
+  return prisma.cookbookEntry.delete({
+    where: { recipeId },
+  })
+}
+
+export async function updateNote(recipeId, notes) {
+  return prisma.cookbookEntry.update({
+    where: { recipeId },
+    data:  { notes },
+  })
+}
+
+export async function isInCookbook(recipeId) {
+  const entry = await prisma.cookbookEntry.findUnique({
+    where: { recipeId },
+  })
+  return !!entry
+}

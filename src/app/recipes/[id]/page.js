@@ -1,5 +1,6 @@
-import { getRecipeById, getSimilar } from '@/actions/recipe'
+import { getRecipeById, getSimilar, isInCookbook } from '@/actions/recipe'
 import RecipeCard from '@/app/components/RecipeCard'
+import CookbookButton from '@/app/components/CookbookButton'
 import { notFound } from 'next/navigation'
 
 export default async function RecipePage({ params }) {
@@ -8,9 +9,11 @@ export default async function RecipePage({ params }) {
   const recipe = await getRecipeById(id)
   if (!recipe) notFound()
 
-  const similar = await getSimilar(recipe.category, id, 4)
+  const [similar, inCookbook] = await Promise.all([
+    getSimilar(recipe.category, id, 4),
+    isInCookbook(id),
+  ])
 
-  // Zutaten aus JSON parsen
   let ingredients = []
   try {
     ingredients = recipe.ingredients ? JSON.parse(recipe.ingredients) : []
@@ -22,12 +25,12 @@ export default async function RecipePage({ params }) {
     <main style={{ maxWidth: 'var(--maxw)', margin: '0 auto', padding: '2.5rem 1.5rem 5rem' }}>
 
       {/* Zurück-Link */}
-      <a href="/" style={{
+      <a href="/recipes" style={{
         display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
         color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: '2rem',
         transition: 'color 0.18s',
       }}>
-        ← Zurück
+        ← Alle Rezepte
       </a>
 
       {/* Hero-Bereich */}
@@ -102,9 +105,8 @@ export default async function RecipePage({ params }) {
             />
           )}
 
-          <a href="/recipes" className="btn" style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}>
-            Alle Rezepte →
-          </a>
+          {/* Kochbuch-Button */}
+          <CookbookButton recipeId={id} initialInCookbook={inCookbook} />
         </div>
       </div>
 
@@ -115,7 +117,6 @@ export default async function RecipePage({ params }) {
         gap: '3rem',
         marginBottom: '4rem',
       }}>
-        {/* Zutaten */}
         {ingredients.length > 0 && (
           <div>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.2rem' }}>Zutaten</h2>
@@ -134,7 +135,6 @@ export default async function RecipePage({ params }) {
           </div>
         )}
 
-        {/* Anleitung */}
         {recipe.instructions && (
           <div>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.2rem' }}>Zubereitung</h2>
