@@ -35,7 +35,6 @@ function CookbookCard({ entry }) {
       display: 'flex',
       flexDirection: 'column',
     }}>
-      {/* Bild */}
       <a href={`/recipes/${entry.recipeId}`}>
         <div style={{ aspectRatio: '4/3', overflow: 'hidden', background: 'var(--cream-deep)' }}>
           <img
@@ -48,7 +47,6 @@ function CookbookCard({ entry }) {
         </div>
       </a>
 
-      {/* Body */}
       <div style={{ padding: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', flex: 1 }}>
         {entry.recipe.category && (
           <span className="recipe-card__cat">{entry.recipe.category}</span>
@@ -57,17 +55,15 @@ function CookbookCard({ entry }) {
           <h3 className="recipe-card__title">{entry.recipe.title}</h3>
         </a>
 
-        {/* Meta */}
         <div className="recipe-card__meta">
-          {entry.recipe.readyInMinutes && <span>⏱ {entry.recipe.readyInMinutes} Min</span>}
-          {entry.recipe.servings && <span>🍽 {entry.recipe.servings} Port.</span>}
+          {entry.recipe.readyInMinutes && <span>⏱ {entry.recipe.readyInMinutes} min</span>}
+          {entry.recipe.servings && <span>🍽 {entry.recipe.servings} servings</span>}
         </div>
 
-        {/* Notiz */}
         <textarea
           value={note}
           onChange={e => setNote(e.target.value)}
-          placeholder="Deine Notiz zu diesem Rezept…"
+          placeholder="Your note for this recipe…"
           rows={3}
           style={{
             width: '100%',
@@ -84,7 +80,6 @@ function CookbookCard({ entry }) {
           }}
         />
 
-        {/* Buttons */}
         <div style={{ display: 'flex', gap: '0.6rem', marginTop: 'auto' }}>
           <button
             onClick={handleSaveNote}
@@ -92,7 +87,7 @@ function CookbookCard({ entry }) {
             className="btn"
             style={{ flex: 1, fontSize: '0.85rem', padding: '0.55rem 1rem' }}
           >
-            {saving ? 'Speichern…' : saved ? '✅ Gespeichert!' : '💾 Notiz speichern'}
+            {saving ? 'Saving…' : saved ? '✅ Saved!' : '💾 Save note'}
           </button>
           <button
             onClick={handleRemove}
