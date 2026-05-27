@@ -1,5 +1,6 @@
 import './globals.css'
 import Navbar from './components/Navbar'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata = {
   title: 'ByteBites — Recipe Diary',
@@ -12,6 +13,7 @@ export default function RootLayout({ children }) {
       <body>
         <Navbar />
         {children}
+        <Analytics />
       </body>
     </html>
   )
