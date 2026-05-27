@@ -34,23 +34,16 @@ export default function AdminClient() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [filters, setFilters] = useState({
-    q: "",
-    category: "",
-    cuisine: "",
-    diet: "",
-    sort: "",
-  });
-
-  useEffect(() => {
-    setFilters({
+  const filters = useMemo(
+    () => ({
       q: searchParams.get("q") || "",
       category: searchParams.get("category") || "",
       cuisine: searchParams.get("cuisine") || "",
       diet: searchParams.get("diet") || "",
       sort: searchParams.get("sort") || "",
-    });
-  }, [searchParams]);
+    }),
+    [searchParams],
+  );
   const currentPage = Number(searchParams.get("page") || "1");
   const PAGE_SIZE = 24;
   const [total, setTotal] = useState(null);
