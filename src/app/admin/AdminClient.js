@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import RecipeSearchForm from "@/app/components/RecipeSearchForm";
 import AdminRecipeCard from "@/app/components/AdminRecipeCard";
