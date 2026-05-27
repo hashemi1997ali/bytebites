@@ -1,58 +1,70 @@
-'use server'
+"use server";
 
-import { prisma } from '@/lib/prisma'
+import { prisma } from "@/lib/prisma";
 
 export async function getFeatured(limit = 12) {
   return prisma.recipe.findMany({
     where: { featured: true, isPersonal: false },
     take: limit,
-    orderBy: { createdAt: 'desc' },
-  })
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export async function searchRecipes(filters = {}) {
-  const { q, category, cuisine, sort, diet } = filters
-  return prisma.recipe.findMany({
-    where: {
-      isPersonal: false,
-      ...(q        ? { title:    { contains: q,        mode: 'insensitive' } } : {}),
-      ...(category ? { category: { equals:   category, mode: 'insensitive' } } : {}),
-      ...(cuisine  ? { cuisine:  { equals:   cuisine,  mode: 'insensitive' } } : {}),
-      ...(diet === 'vegan'      ? { vegan:      true } : {}),
-      ...(diet === 'vegetarian' ? { vegetarian: true } : {}),
-      ...(diet === 'glutenFree' ? { glutenFree: true } : {}),
-      ...(diet === 'dairyFree'  ? { dairyFree:  true } : {}),
-    },
-    orderBy:
-      sort === 'quickest' ? { readyInMinutes: 'asc' }
-      : sort === 'az'     ? { title: 'asc' }
-      :                     { createdAt: 'desc' },
-    take: 50,
-  })
+  const { q, category, cuisine, sort, diet, page = 1, limit = 24 } = filters;
+  const where = {
+    isPersonal: false,
+    ...(q ? { title: { contains: q, mode: "insensitive" } } : {}),
+    ...(category
+      ? { category: { equals: category, mode: "insensitive" } }
+      : {}),
+    ...(cuisine ? { cuisine: { equals: cuisine, mode: "insensitive" } } : {}),
+    ...(diet === "vegan" ? { vegan: true } : {}),
+    ...(diet === "vegetarian" ? { vegetarian: true } : {}),
+    ...(diet === "glutenFree" ? { glutenFree: true } : {}),
+    ...(diet === "dairyFree" ? { dairyFree: true } : {}),
+  };
+
+  const orderBy =
+    sort === "quickest"
+      ? { readyInMinutes: "asc" }
+      : sort === "az"
+        ? { title: "asc" }
+        : { createdAt: "desc" };
+
+  const take = Number(limit) || 20;
+  const skip = (Math.max(Number(page) || 1, 1) - 1) * take;
+
+  const [recipes, total] = await Promise.all([
+    prisma.recipe.findMany({ where, orderBy, take, skip }),
+    prisma.recipe.count({ where }),
+  ]);
+
+  return { recipes, total, page: Number(page) || 1, limit: take };
 }
 
 export async function getRecipeById(id) {
-  return prisma.recipe.findUnique({ where: { id } })
+  return prisma.recipe.findUnique({ where: { id } });
 }
 
 export async function getCategories() {
   const rows = await prisma.recipe.findMany({
     select: { category: true },
-    distinct: ['category'],
+    distinct: ["category"],
     where: { category: { not: null }, isPersonal: false },
-    orderBy: { category: 'asc' },
-  })
-  return rows.map(r => r.category).filter(Boolean)
+    orderBy: { category: "asc" },
+  });
+  return rows.map((r) => r.category).filter(Boolean);
 }
 
 export async function getCuisines() {
   const rows = await prisma.recipe.findMany({
     select: { cuisine: true },
-    distinct: ['cuisine'],
+    distinct: ["cuisine"],
     where: { cuisine: { not: null }, isPersonal: false },
-    orderBy: { cuisine: 'asc' },
-  })
-  return rows.map(r => r.cuisine).filter(Boolean)
+    orderBy: { cuisine: "asc" },
+  });
+  return rows.map((r) => r.cuisine).filter(Boolean);
 }
 
 export async function getSimilar(category, excludeId, limit = 4) {
@@ -60,11 +72,13 @@ export async function getSimilar(category, excludeId, limit = 4) {
     where: {
       id: { not: excludeId },
       isPersonal: false,
-      ...(category ? { category: { equals: category, mode: 'insensitive' } } : {}),
+      ...(category
+        ? { category: { equals: category, mode: "insensitive" } }
+        : {}),
     },
     take: limit,
-    orderBy: { createdAt: 'desc' },
-  })
+    orderBy: { createdAt: "desc" },
+  });
 }
 // ============================================
 // Kochbuch (CookbookEntry) — neue Funktionen
@@ -73,34 +87,34 @@ export async function getSimilar(category, excludeId, limit = 4) {
 export async function getCookbook() {
   return prisma.cookbookEntry.findMany({
     include: { recipe: true },
-    orderBy: { createdAt: 'desc' },
-  })
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export async function addToCookbook(recipeId) {
   return prisma.cookbookEntry.upsert({
-    where:  { recipeId },
+    where: { recipeId },
     update: {},
     create: { recipeId },
-  })
+  });
 }
 
 export async function removeFromCookbook(recipeId) {
   return prisma.cookbookEntry.delete({
     where: { recipeId },
-  })
+  });
 }
 
 export async function updateNote(recipeId, notes) {
   return prisma.cookbookEntry.update({
     where: { recipeId },
-    data:  { notes },
-  })
+    data: { notes },
+  });
 }
 
 export async function isInCookbook(recipeId) {
   const entry = await prisma.cookbookEntry.findUnique({
     where: { recipeId },
-  })
-  return !!entry
+  });
+  return !!entry;
 }
