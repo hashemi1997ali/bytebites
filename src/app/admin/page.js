@@ -1,9 +1,10 @@
+import { Suspense } from "react";
 import AdminClient from "./AdminClient";
 
 export default function AdminPage() {
   return (
-    <main>
+    <Suspense fallback={<div>Loading...</div>}>
       <AdminClient />
-    </main>
+    </Suspense>
   );
 }
