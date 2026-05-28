@@ -1,22 +1,31 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { addToCookbook, removeFromCookbook } from '@/actions/recipe'
+import { useEffect, useState } from "react";
+import {
+  addCookbookEntry,
+  isRecipeInCookbook,
+  removeCookbookEntry,
+  createCookbookEntry,
+} from "@/lib/cookbookStorage";
 
-export default function CookbookButton({ recipeId, initialInCookbook }) {
-  const [inCookbook, setInCookbook] = useState(initialInCookbook)
-  const [loading, setLoading] = useState(false)
+export default function CookbookButton({ recipe }) {
+  const [inCookbook, setInCookbook] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  async function handleToggle() {
-    setLoading(true)
+  useEffect(() => {
+    setInCookbook(isRecipeInCookbook(recipe.id));
+  }, [recipe.id]);
+
+  function handleToggle() {
+    setLoading(true);
     if (inCookbook) {
-      await removeFromCookbook(recipeId)
-      setInCookbook(false)
+      removeCookbookEntry(recipe.id);
+      setInCookbook(false);
     } else {
-      await addToCookbook(recipeId)
-      setInCookbook(true)
+      addCookbookEntry(createCookbookEntry(recipe));
+      setInCookbook(true);
     }
-    setLoading(false)
+    setLoading(false);
   }
 
   return (
@@ -25,16 +34,16 @@ export default function CookbookButton({ recipeId, initialInCookbook }) {
       disabled={loading}
       className="btn"
       style={{
-        alignSelf: 'flex-start',
-        background: inCookbook ? 'var(--olive)' : 'var(--terracotta)',
-        marginTop: '0.5rem',
+        alignSelf: "flex-start",
+        background: inCookbook ? "var(--olive)" : "var(--terracotta)",
+        marginTop: "0.5rem",
       }}
     >
       {loading
-        ? '…'
+        ? "…"
         : inCookbook
-        ? '✅ Saved to Cookbook'
-        : '📖 Add to Cookbook'}
+          ? "✅ Saved to Cookbook"
+          : "📖 Add to Cookbook"}
     </button>
-  )
+  );
 }

@@ -13,7 +13,7 @@ function getTokenFromHeader(request) {
   return null;
 }
 
-function normalizeIngredients(input) {
+function normalizeJsonList(input) {
   if (input == null || input === "") return null;
   if (Array.isArray(input)) return JSON.stringify(input.filter(Boolean));
   if (typeof input === "string") {
@@ -91,8 +91,8 @@ export async function POST(request) {
       title: body.title || "Untitled",
       image: body.image || "",
       summary: body.summary || null,
-      instructions: body.instructions || null,
-      ingredients: normalizeIngredients(body.ingredients),
+      instructions: normalizeJsonList(body.instructions),
+      ingredients: normalizeJsonList(body.ingredients),
       category: body.category || null,
       cuisine: body.cuisine || null,
       readyInMinutes: body.readyInMinutes ? Number(body.readyInMinutes) : null,
@@ -170,8 +170,8 @@ export async function PUT(request) {
       "isPersonal",
     ].forEach((k) => {
       if (k in body) {
-        if (k === "ingredients") {
-          data[k] = normalizeIngredients(body[k]);
+        if (k === "ingredients" || k === "instructions") {
+          data[k] = normalizeJsonList(body[k]);
         } else if (k === "externalId") {
           data[k] = body[k] ? Number(body[k]) : null;
         } else if (k === "isPersonal") {

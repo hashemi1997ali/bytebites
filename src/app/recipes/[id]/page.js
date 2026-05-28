@@ -1,4 +1,4 @@
-import { getRecipeById, getSimilar, isInCookbook } from "@/actions/recipe";
+import { getRecipeById, getSimilar } from "@/actions/recipe";
 import RecipeCard from "@/app/components/RecipeCard";
 import CookbookButton from "@/app/components/CookbookButton";
 import { notFound } from "next/navigation";
@@ -10,16 +10,24 @@ export default async function RecipePage({ params }) {
   const recipe = await getRecipeById(id);
   if (!recipe) notFound();
 
-  const [similar, inCookbook] = await Promise.all([
-    getSimilar(recipe.category, id, 4),
-    isInCookbook(id),
-  ]);
+  const similar = await getSimilar(recipe.category, id, 4);
 
   let ingredients = [];
+  let instructions = null;
   try {
     ingredients = recipe.ingredients ? JSON.parse(recipe.ingredients) : [];
   } catch {
     ingredients = [];
+  }
+
+  try {
+    if (recipe.instructions) {
+      const parsed = JSON.parse(recipe.instructions);
+      if (Array.isArray(parsed)) instructions = parsed;
+      else instructions = String(parsed);
+    }
+  } catch {
+    instructions = recipe.instructions || null;
   }
 
   return (
@@ -139,20 +147,7 @@ export default async function RecipePage({ params }) {
             )}
           </div>
 
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-            {recipe.vegan && <span className="diet-tag">🌱 Vegan</span>}
-            {recipe.vegetarian && (
-              <span className="diet-tag">🥗 Vegetarian</span>
-            )}
-            {recipe.glutenFree && (
-              <span className="diet-tag">🌾 Gluten Free</span>
-            )}
-            {recipe.dairyFree && (
-              <span className="diet-tag">🥛 Dairy Free</span>
-            )}
-          </div>
-
-          <CookbookButton recipeId={id} initialInCookbook={inCookbook} />
+          <CookbookButton recipe={recipe} />
         </div>
       </div>
 
@@ -179,40 +174,86 @@ export default async function RecipePage({ params }) {
         </div>
       )}
 
-      {ingredients.length > 0 && (
-        <div
-          style={{
-            marginBottom: "3rem",
-          }}
-        >
-          <h2 style={{ fontSize: "1.5rem", marginBottom: "1.2rem" }}>
-            Ingredients
-          </h2>
-          <ul
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "3rem",
+          marginBottom: "4rem",
+        }}
+      >
+        {ingredients.length > 0 && (
+          <div
             style={{
-              listStyle: "none",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "0.8rem 1.2rem",
-              padding: 0,
+              marginBottom: "3rem",
             }}
           >
-            {ingredients.map((ing, i) => (
-              <li
-                key={i}
+            <h2 style={{ fontSize: "1.5rem", marginBottom: "1.2rem" }}>
+              Ingredients
+            </h2>
+            <ul
+              style={{
+                listStyle: "none",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: "0.8rem 1.2rem",
+                padding: 0,
+              }}
+            >
+              {ingredients.map((ing, i) => (
+                <li
+                  key={i}
+                  style={{
+                    padding: "0.6rem 0",
+                    borderBottom: "1px solid var(--line)",
+                    fontSize: "0.95rem",
+                    color: "var(--ink-soft)",
+                  }}
+                >
+                  {ing}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {instructions && (
+          <div>
+            <h2 style={{ fontSize: "1.5rem", marginBottom: "1.2rem" }}>
+              Instructions
+            </h2>
+
+            {Array.isArray(instructions) ? (
+              <ol
                 style={{
-                  padding: "0.6rem 0",
-                  borderBottom: "1px solid var(--line)",
-                  fontSize: "0.95rem",
                   color: "var(--ink-soft)",
+                  lineHeight: 1.85,
+                  fontSize: "0.97rem",
+                  maxWidth: "75ch",
+                  paddingLeft: "1.2rem",
                 }}
               >
-                {ing}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                {instructions.map((step, index) => (
+                  <li key={index} style={{ marginBottom: "0.8rem" }}>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <div
+                style={{
+                  color: "var(--ink-soft)",
+                  lineHeight: 1.85,
+                  fontSize: "0.97rem",
+                  maxWidth: "75ch",
+                }}
+              >
+                {String(instructions)}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {similar.length > 0 && (
         <section>

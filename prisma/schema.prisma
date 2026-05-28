@@ -27,16 +27,4 @@ model Recipe {
   dairyFree      Boolean  @default(false)
   createdAt      DateTime @default(now())
 
-  cookbookEntries CookbookEntry[]
-}
-
-model CookbookEntry {
-  id        Int      @id @default(autoincrement())
-  recipeId  Int      @unique
-  notes     String?
-  favorite  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }
