@@ -51,19 +51,19 @@ export default function AdminClient() {
   const [cuisines, setCuisines] = useState([]);
   const [login, setLogin] = useState({ username: "", password: "" });
 
-  function formatIngredientsInput(ingredients) {
-    if (!ingredients) return "";
-    if (typeof ingredients !== "string") return String(ingredients);
+  function formatJsonListInput(value) {
+    if (!value) return "";
+    if (typeof value !== "string") return String(value);
     try {
-      const parsed = JSON.parse(ingredients);
+      const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) return parsed.join("\n");
     } catch {
       // ignore
     }
-    return ingredients;
+    return value;
   }
 
-  function normalizeIngredients(input) {
+  function normalizeJsonList(input) {
     if (input == null || input === "") return null;
     if (Array.isArray(input)) return JSON.stringify(input.filter(Boolean));
     if (typeof input === "string") {
@@ -188,7 +188,8 @@ export default function AdminClient() {
     setEditingId(recipe.id);
     setModalForm({
       ...recipe,
-      ingredients: formatIngredientsInput(recipe.ingredients),
+      ingredients: formatJsonListInput(recipe.ingredients),
+      instructions: formatJsonListInput(recipe.instructions),
     });
     setIsModalOpen(true);
   }
@@ -203,7 +204,8 @@ export default function AdminClient() {
     e.preventDefault();
     const payload = {
       ...modalForm,
-      ingredients: normalizeIngredients(modalForm.ingredients),
+      ingredients: normalizeJsonList(modalForm.ingredients),
+      instructions: normalizeJsonList(modalForm.instructions),
     };
 
     if (editingId) {
@@ -578,6 +580,19 @@ export default function AdminClient() {
                   value={modalForm.ingredients ?? ""}
                   onChange={(e) =>
                     setModalForm({ ...modalForm, ingredients: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-label">Instructions</label>
+                <textarea
+                  className="admin-textarea"
+                  placeholder="One per line or comma-separated"
+                  rows={4}
+                  value={modalForm.instructions ?? ""}
+                  onChange={(e) =>
+                    setModalForm({ ...modalForm, instructions: e.target.value })
                   }
                 />
               </div>
