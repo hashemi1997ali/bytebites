@@ -21,26 +21,72 @@ const CATEGORIES = [
   "soup",
 ];
 
+async function fetchRecipeInfo(id) {
+  const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${API_KEY}&includeNutrition=false`;
+  const res = await fetch(url);
+  if (!res.ok)
+    throw new Error(`Spoonacular error: ${res.status} ${res.statusText}`);
+  return await res.json();
+}
+
 async function fetchRecipes(type, number = 20) {
-  const url = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&type=${encodeURIComponent(type)}&number=${number}&addRecipeInformation=true&fillIngredients=true`;
+  const url = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${API_KEY}&type=${encodeURIComponent(type)}&number=${number}&fillIngredients=true`;
   const res = await fetch(url);
   if (!res.ok)
     throw new Error(`Spoonacular error: ${res.status} ${res.statusText}`);
   const data = await res.json();
-  return data.results ?? [];
+  const recipes = [];
+  for (const result of data.results ?? []) {
+    const info = await fetchRecipeInfo(result.id);
+    recipes.push(info);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  return recipes;
+}
+
+function extractInstructions(recipe) {
+  if (Array.isArray(recipe.analyzedInstructions)) {
+    const steps = [];
+    for (const block of recipe.analyzedInstructions) {
+      if (typeof block === "string" && block.trim()) {
+        steps.push(block.trim());
+      }
+      if (Array.isArray(block?.steps) && block.steps.length > 0) {
+        steps.push(
+          ...block.steps
+            .map((step) =>
+              typeof step === "string" ? step.trim() : step?.step?.trim(),
+            )
+            .filter(Boolean),
+        );
+      }
+    }
+    if (steps.length) return steps;
+  }
+
+  if (typeof recipe.instructions === "string" && recipe.instructions.trim()) {
+    const lines = recipe.instructions
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+    return lines.length ? lines : [recipe.instructions.trim()];
+  }
+
+  return null;
 }
 
 function mapRecipe(r, category) {
   const ingredients = r.extendedIngredients?.length
     ? JSON.stringify(r.extendedIngredients.map((i) => i.original))
     : null;
+  const instructions = extractInstructions(r);
 
   return {
     externalId: r.id,
     title: r.title,
     image: r.image ?? "",
     summary: r.summary ?? null,
-    instructions: r.instructions ?? null,
+    instructions: instructions ? JSON.stringify(instructions) : null,
     ingredients,
     category: category.charAt(0).toUpperCase() + category.slice(1),
     cuisine: r.cuisines?.[0] ?? null,
